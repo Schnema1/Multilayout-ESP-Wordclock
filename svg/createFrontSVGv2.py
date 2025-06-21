@@ -1,5 +1,5 @@
-# Open a file with access mode 'a'
-file_object = open('UHR114_Front_CHv2_orig.svg', 'a')
+# Open a file with access mode 'w' (not 'a' - we want to overwrite)
+file_object = open('UHR114_Front_CHv2.svg', 'w', encoding='utf-8')
 
 startX = 239.5
 startY = 1129
@@ -7,23 +7,19 @@ spacing_x = 63
 spacing_y = 69.9213
 textSize = 40
 
-col = 0
-row = 0
-
-textId = 65
-tspanId = 67
-
-Text = ''' * E S K I S T R F Ü N F
- * Ä S H I S C H U F Ü F
- * V I E R T U N F Z Ä Ä
- * Z W Ä N Z G S E V O R
- * A B C H A U B I E C M
- * E I S Z W Ö I S D R Ü
- * V I E R I F Ü F I S T
- * S Ä C H S I S I B N I
- * A C H T I N Ü N I E L
- * Z Ä N I E C H E U F I
- * Z W Ö U F I E N G S I'''
+# The text organized by rows
+text_rows = [
+    "ÄSBISCHUFÜF",
+    "VIERTUNFZÄÄ",
+    "ZWÄNZGSEVOR",
+    "ABCHAUBIECM",
+    "EISZWEISDRÜ",
+    "VIERIFÜFIST",
+    "SÄCHSISIBNI",
+    "ACHTINÜNIEL",
+    "ZÄNIECHEUFI",
+    "ZWÖUFIENGSI"
+]
 
 file_object.write('''<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
@@ -125,30 +121,23 @@ file_object.write('''<?xml version="1.0" encoding="UTF-8" standalone="no"?>
        r="8.5029774"
        id="circle18" />''')
 
-for char_text in range(len(Text)):
-    temp = Text[char_text]
-    if Text[char_text] != Text[0]:
-        if Text[char_text] != Text[1]:
-            variable_x_spacing = str(startX + col * spacing_x)
-            if Text[char_text] != Text[8]:
-                variable_x_spacing = str(startX + col * spacing_x - 2.1)
-            file_object.write('''    <text
+textId = 65
+tspanId = 67
+
+for row_num, row_text in enumerate(text_rows):
+    for col_num, char in enumerate(row_text):
+        variable_x_spacing = str(startX + col_num * spacing_x - (2.1 if col_num != 0 else 0))
+        file_object.write(f'''    <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:''' + str(textSize) + '''px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="''' + variable_x_spacing + '''"
-       y="''' + str(startY + row * spacing_y) + '''"
-       id="text''' + str(textId + col * 2) + '''"><tspan
+       style="font-style:normal;font-weight:normal;font-size:{textSize}px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="{variable_x_spacing}"
+       y="{startY + row_num * spacing_y}"
+       id="text{textId + col_num * 2}"><tspan
          sodipodi:role="line"
-         id="tspan''' + str(tspanId + col * 2) + '''"
-         x="''' + variable_x_spacing + '''"
-         y="''' + str(startY + row * spacing_y) + '''">''' + Text[char_text] + '''</tspan></text>
+         id="tspan{tspanId + col_num * 2}"
+         x="{variable_x_spacing}"
+         y="{startY + row_num * spacing_y}">{char}</tspan></text>
 ''')
-            col = col + 1
-            if col == 12:
-                row = row + 1
-                col = 0
 
-file_object.write("""\n</g>\n</svg>""")
-
-# Close the file
+file_object.write("""</g>\n</svg>""")
 file_object.close()
